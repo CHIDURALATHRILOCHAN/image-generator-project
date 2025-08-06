@@ -9,12 +9,10 @@ const PORT = process.env.PORT || 4000
 const app = express();
 
 app.use(express.json());
-// FIX: Configure CORS to allow requests from your Vercel frontend URL
-app.use(cors({
-  origin: 'https://image-frontend-kohl.vercel.app',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
-}));
+// FIX: Use a more permissive CORS configuration to resolve mobile network errors
+// WARNING: This is not recommended for a production environment with real user data.
+app.use(cors());
+
 await connectDB();
 
 app.use('/api/user',userRouter);
