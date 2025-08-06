@@ -1,0 +1,33 @@
+import React, { useContext } from 'react';
+import './index.css';
+import { Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Result from './pages/Result';
+import BuyCredit from './pages/BuyCredit';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Login from './components/Login';
+import { AppContext } from './context/AppContext';
+import { ToastContainer } from 'react-toastify';
+
+const App = () => {
+  const {showLogin} = useContext(AppContext);
+    return (
+    <div className="bg-gradient-to-b from-teal-50 to-orange-50 min-h-screen">
+      <ToastContainer position='bottom-right' />
+      {/* FIX: Render Login modal outside the padded main content div */}
+      {showLogin && <Login/>} 
+      <div className="px-4 sm:px-10 md:px-14 lg:px-28"> {/* This div now only contains the main content */}
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/result" element={<Result />} />
+          <Route path="/buy" element={<BuyCredit />} />
+        </Routes>
+        <Footer/>
+      </div>
+    </div>
+  );
+};
+
+export default App;
