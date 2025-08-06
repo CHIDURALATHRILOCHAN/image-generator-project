@@ -1,125 +1,92 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { assets } from '../assets/assets';
+import React, { useState,useEffect } from 'react';
+import {assets} from '../assets/assets';
+import { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
+// Removed motion import: import { motion } from 'motion/react'; // Keep this comment if you want
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const Login = () => {
-  const [state, setState] = useState("Login");
-  const { setShowLogin, backendUrl, setToken, setUser, setCredit } = useContext(AppContext);
+    const [state, setState] =useState("Login")
+    const {setShowLogin,backendUrl,setToken,setUser,setCredit} = useContext(AppContext)
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+    const [name,setName]= useState("");
+    const [email,setEmail]= useState("");
+    const [password,setPassword]= useState("");
+    
 
-  const onSubmitHandler = async (e) => {
-    e.preventDefault();
-    try {
-      if (state === "Login") {
-        const { data } = await axios.post(`${backendUrl}/api/user/login`, { email, password });
-        if (data.success) {
-          setToken(data.token);
-          setUser(data.user);
-          setCredit(data.creditBalance);
-          localStorage.setItem('token', data.token);
-          setShowLogin(false);
-        } else {
-          toast.error(data.message);
-        }
-      } else {
-        const { data } = await axios.post(`${backendUrl}/api/user/register`, { name, email, password });
-        if (data.success) {
-          setToken(data.token);
-          setUser(data.user);
-          setCredit(data.creditBalance);
-          localStorage.setItem('token', data.token);
-          setShowLogin(false);
-        } else {
-          toast.error(data.message);
-        }
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || err.message);
-    }
-  };
+    const onSubmitHandler = async (e) => {
+      e.preventDefault();
+      try{
 
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, []);
+        if(state === "Login"){
+          const {data} = await axios.post(backendUrl+'/api/user/login',{email,password})
+        if(data.success){
+          setToken(data.token);
+          setUser(data.user);
+          setCredit(data.creditBalance);
+          localStorage.setItem('token',data.token);
+          setShowLogin(false);
+        }
+        else{
+         toast.error(data.message);
+        }
+      }
+      else{
+        const {data} = await axios.post(backendUrl+'/api/user/register',{name,email,password})
+        if(data.success){
+          setToken(data.token);
+          setUser(data.user);
+          setCredit(data.creditBalance);
+          localStorage.setItem('token',data.token);
+          setShowLogin(false);
+        }
+        else{
+         toast.error(data.message);
+        }
+      }
+      }
+      catch(err){
+        toast.error(err.response?.data?.message || err.message);
+      }
+    }
+    useEffect(() => {
+        document.body.style.overflow = "hidden";
 
-  return (
-    <div className="fixed top-0 left-0 right-0 bottom-0 z-10 backdrop-blur-sm bg-black/30 flex justify-center items-center">
-      <form onSubmit={onSubmitHandler} className="relative bg-white p-10 rounded-xl text-slate-500">
-        <h1 className="text-center text-2xl text-neutral-700 font-medium">{state}</h1>
-        <p>Welcome back! Please sign in to continue</p>
+        return ()=>{
+            document.body.style.overflow = "unset";
+        }
+    },[])
+  return (
+    {/* FIX: Moved className to the same line as the div tag */}
+    <div className='fixed top-0 left-0 right-0 bottom-0 z-10 backdrop-blur-sm bg-black/30 flex justify-center items-center'>
+      <form onSubmit={onSubmitHandler} className='relative bg-white p-10 rounded-xl text-slate-500'>
+        <h1 className=' text-center  text-2xl text-neutral-700 font-medium'> {state}</h1>
+        <p>Welcome back! Please sign in to continue </p>
+        {state!="Login" && <div className='border px-4 py-2 flex items-center gap-2 rounded-full mt-4'>
+            <img className="w-5 h-5 " src={assets.profile_icon}/>
+            <input onChange={e => setName(e.target.value)} value={name} className='outline-none text-sm'type="text" placeholder='Full Name' required/>
+        </div>}
+        <div className='border px-4 py-2 flex items-center gap-2 rounded-full mt-4'>
+             <img className="w-5 h-5" src={assets.email_icon}/>
+            <input onChange={e => setEmail(e.target.value)} value={email} className='outline-none text-sm'type="email" placeholder='Email Id' required/>
+        </div>
+        <div className='border px-4 py-2 flex items-center gap-2 rounded-full mt-4'>
+             <img className="w-5 h-5 text-neutral-700" src={assets.lock_icon}/>
+            <input onChange={e => setPassword(e.target.value)} value={password} className='outline-none text-sm'type="password" placeholder='Password' required/>
+        </div>
+        <p className='text-sm text-blue-600 my-4 cursor-pointer'>Forgot Passoword?</p>
+        <button className='bg-blue-600 w-full text-white py-2 rounded-full text-md'>{state!="Login" ? "create account" : "login"}</button>
+        { state=="Login" ? <p className='mt-5 text-center'> Don't have an account ? 
+            <span className='text-blue-600 cursor-pointer' onClick={()=>setState('Sign Up')}> Sign up</span>
+        </p>:
+                <p className='mt-5 text-center'> Already have an account ?
+            <span className='text-blue-600 cursor-pointer' onClick ={()=>setState("Login")}> Login</span>
+        </p>}
+        <img onClick={()=>setShowLogin(false)} src={assets.cross_icon} className='absolute top-5 right-5 w-3 h-3 cursor-pointer' alt="close" />
+      </form>
+    </div>
+  )
+}
 
-        {state !== "Login" && (
-          <div className="border px-4 py-2 flex items-center gap-2 rounded-full mt-4">
-            <img className="w-5 h-5" src={assets.profile_icon} alt="profile" />
-            <input
-              onChange={e => setName(e.target.value)}
-              value={name}
-              className="outline-none text-sm"
-              type="text"
-              placeholder="Full Name"
-              required
-            />
-          </div>
-        )}
-
-        <div className="border px-4 py-2 flex items-center gap-2 rounded-full mt-4">
-          <img className="w-5 h-5" src={assets.email_icon} alt="email" />
-          <input
-            onChange={e => setEmail(e.target.value)}
-            value={email}
-            className="outline-none text-sm"
-            type="email"
-            placeholder="Email Id"
-            required
-          />
-        </div>
-
-        <div className="border px-4 py-2 flex items-center gap-2 rounded-full mt-4">
-          <img className="w-5 h-5 text-neutral-700" src={assets.lock_icon} alt="lock" />
-          <input
-            onChange={e => setPassword(e.target.value)}
-            value={password}
-            className="outline-none text-sm"
-            type="password"
-            placeholder="Password"
-            required
-          />
-        </div>
-
-        <p className="text-sm text-blue-600 my-4 cursor-pointer">Forgot Password?</p>
-        <button className="bg-blue-600 w-full text-white py-2 rounded-full text-md">
-          {state !== "Login" ? "Create Account" : "Login"}
-        </button>
-
-        {state === "Login" ? (
-          <p className="mt-5 text-center">
-            Don't have an account?
-            <span className="text-blue-600 cursor-pointer" onClick={() => setState("Sign Up")}> Sign up</span>
-          </p>
-        ) : (
-          <p className="mt-5 text-center">
-            Already have an account?
-            <span className="text-blue-600 cursor-pointer" onClick={() => setState("Login")}> Login</span>
-          </p>
-        )}
-
-        <img
-          onClick={() => setShowLogin(false)}
-          src={assets.cross_icon}
-          className="absolute top-5 right-5 w-3 h-3 cursor-pointer"
-          alt="close"
-        />
-      </form>
-    </div>
-  );
-};
-
-export default Login;
+export default Login
